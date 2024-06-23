@@ -26,6 +26,7 @@ import Verification from './pages/landing/verification.jsx';
 import ResetPage from './pages/landing/Reset.jsx';
 import Company from './pages/dashAdmin/Company.jsx';
 import RechargePage from './pages/landing/recharge.jsx';
+import ResetPageFarmer from './pages/landing/verification.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -45,8 +46,8 @@ const router = createBrowserRouter([
         element: <Recovery />
       },
       {
-        path: "verify/:emailKey",
-        element: <Verification />
+        path: "verify/client/:emailKey",
+        element: <ResetPageFarmer />
       },
       {
         path: "recover/account/:emailKey",
