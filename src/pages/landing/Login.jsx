@@ -67,7 +67,7 @@ const LoginPage = () => {
             <Typography sx={{ fontSize: { xs: "1.1rem", md: "1.2rem", color: "#1d3557", fontWeight: "450" } }}>
                 Have an account ?
             </Typography>
-            <Typography color={"primary"} sx={{ fontSize: { xs: "1.7rem", md: "2rem", fontWeight: "450" } }}>
+            <Typography  sx={{ fontSize: { xs: "1.7rem", color:"#fb8500", md: "2rem", fontWeight: "450" } }}>
                 Login
             </Typography>
 

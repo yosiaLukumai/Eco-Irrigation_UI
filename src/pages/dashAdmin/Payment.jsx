@@ -1,17 +1,18 @@
-import { Grid, Button, Box, Avatar, Typography, CircularProgress, Chip, createTheme } from "@mui/material";
+import { Grid, Button, Box, Avatar, Typography, CircularProgress, Chip, createTheme, Menu, MenuItem } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect, useRef, useState } from "react";
-import EditIcon from '@mui/icons-material/Edit';
 import MUIDataTable from "mui-datatables";
 import { retriveData } from "../../Utils/Localstorage";
 
 
 import Configuration from "../../App/config";
-import AddNewClient from "../../components/AddNewClient";
+import AddNewMeter from "../../components/addNewMeter";
 import BackdropProcess from "../../components/Backdrop";
-import AddPayment from "../../components/addPayment";
 import { ThemeProvider } from "@emotion/react";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import AddNewPackage from "../../components/AddNewPackage";
+
+
 
 const TableTheme = createTheme({
     components: {
@@ -75,22 +76,23 @@ const Payment = () => {
     const [loading, setLoading] = useState(true)
     const [rowsPerPage, setRowPerPage] = useState(7)
     const [count, setCount] = useState(null)
-    const [companyBranches, setCompanyBranches] = useState(null)
-    const [companyBranchesIDs, setCompanyBranchesIDs] = useState(null)
     const [open, setOpen] = useState(false)
+    const [openPackage, setOpenPackage] = useState(false)
     const [openRole, setOpenRole] = useState(false)
-    const [clients, setClients] = useState(null)
+    const [meters, setMeters] = useState(null)
     const [thereData, setThereData] = useState(false)
     const [branchesMaps, setBranchesMap] = useState(null)
     const [pageNumber, setPageNumber] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
+    const [reload, setReload] = useState(false)
     const [branchesShortForms, setbranchesShortForms] = useState(null)
+
 
     const changePage = async (page) => {
         console.log(page);
         setIsLoading(true)
         try {
-            const response = await fetch(`${Configuration.backendUrl}/client/find/${compID}`, {
+            const response = await fetch(`${Configuration.backendUrl}/company/find/systems`, {
                 mode: "cors",
                 method: "POST",
                 body: JSON.stringify({
@@ -101,7 +103,9 @@ const Payment = () => {
             })
             let result = await response.json()
             if (result.Success) {
-                setClients(result?.Data?.data)
+                setMeters(result?.Data?.data)
+                console.log("setting no loading...");
+
                 setIsLoading(false)
 
             } else {
@@ -121,19 +125,21 @@ const Payment = () => {
         console.log("Deleting with ID:  ", id);
     }
 
-    const isMounted = useRef(false);
-    const isMounted2 = useRef(false)
-    const compID = retriveData(Configuration.localStorageKey)?.Company?._id
-    const openNewMeterDialog = (id) => {
-        if (id == 1) {
-            setOpen(true)
-            return
-        }
-    }
+    const [anchorEl, setAnchorEl] = useState(null);
+    const openss = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
+
+
+
     useEffect(() => {
         async function fetchMeters() {
             try {
-                const response = await fetch(`${Configuration.backendUrl}/client/find/${compID}`, {
+                const response = await fetch(`${Configuration.backendUrl}/payment/find/transaction`, {
                     mode: "cors",
                     method: "POST",
                     body: JSON.stringify({
@@ -145,97 +151,65 @@ const Payment = () => {
                 const result = await response.json()
 
                 if (result?.Success) {
-                    setClients(result?.Data?.data)
+                    setMeters(result?.Data?.data)
                     setCount(result?.Data?.count)
                     setThereData(false)
                     setLoading(false)
+                    setIsLoading(false)
 
                 } else {
                     setThereData(true)
                     setLoading(false)
+                    setIsLoading(false)
                 }
             } catch (error) {
                 console.log(" Error in reading.....");
                 console.log(error);
+                setIsLoading(false)
             }
         }
-        if (!isMounted2.current) {
-            isMounted2.current = true
-            fetchMeters()
-            setIsLoading(false)
-        }
 
-    }, [])
+        fetchMeters()
 
+    }, [reload])
+
+    // fetching the company branches (Sites)
 
     const nowClose = () => {
         setOpen(false)
         setOpenRole(false)
+        setReload(!reload)
     }
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await fetch(`${Configuration.backendUrl}/company/find/branch/${compID}`, {
-                    mode: "cors",
-                    method: "GET"
-                })
-                const result = await response.json()
-                if (result?.Success) {
-                    setBranchesMap(result?.Data)
-                    let fil = result?.Data?.map((v, i) => {
-                        return v?.name
-                    })
-                    let fi2 = result?.Data?.map((v, i) => {
-                        return v?._id
-                    })
-                    let filShortForm = result?.Data?.map((v, i) => {
-                        return v?.shortform
-                    })
-                    setCompanyBranches(fil)
-                    setCompanyBranchesIDs(fi2)
-                    setbranchesShortForms(filShortForm)
-                } else {
-                    setThereData(true)
-                    setLoading(false)
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        if (!isMounted.current) {
-            isMounted.current = true;
-            fetchData()
-        }
-
-    }, [])
+    const nowCloseT = () => {
+        setOpenPackage(false)
+    }
     const columns = [
         {
-            name: "name",
-            label: "Name",
+            name: "transactionId",
+            label: "TransactionID",
             options: {
                 filter: true,
                 sort: false,
             }
         },
         {
-            name: "branch",
-            label: "Branch",
+            name: "amount",
+            label: "Amount",
             options: {
-                filter: false,
-                sort: true,
-            }
-        },
-        {
-            name: "meterno",
-            label: "Serial No",
-            options: {
-                filter: false,
+                filter: true,
                 sort: false,
             }
         },
         {
-            name: "verified",
+            name: "phone",
+            label: "Phone",
+            options: {
+                filter: true,
+                sort: false,
+            }
+        },
+        {
+            name: "status",
             label: "Status",
             options: {
                 filter: true,
@@ -243,17 +217,9 @@ const Payment = () => {
                 customFilterListOptions: { render: v => `Status: ${v}` },
                 customBodyRenderLite: (elID) => {
                     return (
-                        clients[elID]?.status == "active" ? <Chip label="Active" color="primary" /> : <Chip label="Not Active" sx={{ background: "#f73378 !important" }} color="secondary" />
+                        meters[elID]?.status == "success" ? <Chip size="small" label="Success" color="primary" /> : <Chip size="small" label="Pending" sx={{ background: "#f73378 !important" }} color="secondary" />
                     )
                 }
-            }
-        },
-        {
-            name: "balance",
-            label: "Amount",
-            options: {
-                filter: false,
-                sort: false,
             }
         },
         {
@@ -265,8 +231,21 @@ const Payment = () => {
                 customBodyRenderLite: (dataI) => {
                     return (
                         <Box sx={{ height: "", display: "flex" }} className=''>
-                            <EditIcon fontSize="medium" onClick={() => editMeter(clients[dataI]?._id)} />
-                            <DeleteIcon sx={{ ml: "1rem" }} fontSize="medium" onClick={() => deleteID(clients[dataI]?._id)} />
+                            {/* <EditIcon fontSize="medium" onClick={() => editMeter(meters[dataI]?._id)} />
+                            <DeleteIcon sx={{ ml: "1rem" }} fontSize="medium" onClick={() => deleteID(meters[dataI]?._id)} /> */}
+                            <MoreHorizIcon fontSize="small" onClick={handleClick} />
+                            <Menu
+                                id="basic-menu"
+                                anchorEl={anchorEl}
+                                open={openss}
+                                onClose={handleCloseMenu}
+                                MenuListProps={{
+                                    'aria-labelledby': 'basic-button',
+                                }}
+                            >
+                                <MenuItem onClick={handleCloseMenu}>Edit</MenuItem>
+                                <MenuItem onClick={handleCloseMenu}>Delete</MenuItem>
+                            </Menu>
                         </Box>
                     )
                 }
@@ -275,6 +254,7 @@ const Payment = () => {
     ];
 
     const options = {
+        // selectableRowsHideCheckboxes: false,
         selectableRows: "none",
         page: pageNumber,
         count: count,
@@ -283,40 +263,38 @@ const Payment = () => {
         serverSide: true,
         onChangePage: (page) => {
             changePage(page)
+        },
+        onSearchChange: (Search) => {
+            console.log(Search);
+        },
+        onFilterChange: (col, filList, x, y, q, ds) => {
+            console.log(col, q);
         }
-
     };
 
 
 
 
+    // fetching the company meters (Sites)
+
     return (<>
 
-        <BackdropProcess opens={loading} />
-        <AddPayment openFlag={open} notifyParent={nowClose} valID={companyBranchesIDs} valu={companyBranches} />
+        {loading && <BackdropProcess opens={loading} />}
         <Box sx={{ pt: { xs: "2.3rem", md: "2.5rem" }, px: { md: "3rem", xs: "0.2rem" }, height: { md: "92.5vh", xs: "" } }}>
-            <Grid container sx={{ background: "", py: "0rem", pb: "1.2rem", borderRadius: "1.4rem" }}>
-                <Grid sx={{ display: "flex", justifyContent: "flex-end", px: { xs: "0.1rem", md: "0rem" }, pt: "0rem" }} md={12} xs={12} item>
-                    <Button onClick={() => openNewMeterDialog(1)} variant="contained" sx={{ textTransform: "none", padding: "0.5rem 1.2rem", fontWeight: "bold", borderRadius: "1.2rem" }} className="hoveredButton">
-                        <Add sx={{ pr: "0.3rem" }} />
-                        Add Payment
-                    </Button>
-
-                </Grid>
-            </Grid>
-            {(!loading && !thereData && clients) && <Grid justifyContent={"center"} alignContent={"center"} container spacing={2}>
+            {(!loading && !thereData && meters) && <Grid justifyContent={"center"} alignContent={"center"} container spacing={2}>
                 <Grid className="" md={12} xs={12} sx={{ overflow: "" }} item>
-
                     <ThemeProvider theme={TableTheme}>
                         {
-                            <Typography variant="h6">
-                                All Payment
-                                {isLoading && <CircularProgress size={24} style={{ marginLeft: 15, position: 'relative', top: 4 }} />}
-                            </Typography>
-                        }
+                            <Box sx={{ marginBottom: "0.2rem" }}>
+                                <Typography variant="" sx={{ fontSize: "18px", color: "#606469", fontWeight: "500" }}>
+                                    All Payments
+                                    {isLoading && <CircularProgress size={24} style={{ marginLeft: 15, position: 'relative', top: 4 }} />}
+                                </Typography>
+                            </Box>
 
+                        }
                         <MUIDataTable
-                            data={clients}
+                            data={meters}
                             columns={columns}
                             options={options}
                         />
@@ -326,19 +304,10 @@ const Payment = () => {
             </Grid>}
 
             {
-                (!clients && !loading) && <Typography variant="h6" textAlign={"center"}>
-                    There is no Payment
+                (!meters && !loading) && <Typography variant="h6" textAlign={"center"}>
+                    There is no Payments
                 </Typography>
             }
-
-            {/* {
-                loading && <Box display={"flex"} flexDirection={"column"} sx={{ width: "100%", alignItems: "center", justifyContent: "center", alignContent: 'center' }}>
-                    <CircularProgress />
-                    <Typography variant="h6" pt="0.3rem" sx={{ color: "#1d3557", pt: "1.2rem" }}>
-                        Processing...
-                    </Typography>
-                </Box>
-            } */}
         </Box>
     </>);
 }

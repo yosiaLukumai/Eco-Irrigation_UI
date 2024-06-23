@@ -1,6 +1,6 @@
 import { CardMembership, Money, Phone } from "@mui/icons-material";
 import { Box, Button, Grid, InputAdornment, TextField, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Await, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import IconTextField from "../../components/iconTextField";
 import Configuration from "../../App/config";
@@ -8,6 +8,7 @@ import { retriveData, save } from "../../Utils/Localstorage";
 import MainAppStore from "../../stores/app";
 import { TimeHasPassed } from "../../Utils/time";
 import CustomDropDown from "../../components/DropDown";
+import { VerifyPhoneNumber, VerifyPhoneNumberLength } from "../../Utils/validation";
 
 
 
@@ -37,7 +38,6 @@ const RechargePage = () => {
         // Generate first token
         if (retriveData("API_keyValue") && TimeHasPassed(new Date().toISOString(), Date(retriveData("ExpirationOfApiKey")))) {
             // no need to generate already exists
-            console.log("no neeed to generate...");
             return [true, retriveData("API_keyValue")]
         } else {
             let tokenData = {
@@ -55,7 +55,6 @@ const RechargePage = () => {
             })
             let TokenResult = await TokenResults.json()
             if (TokenResult?.success) {
-                console.log("success let save into the local storage");
                 save("API_keyValue", TokenResult?.data?.accessToken)
                 save("ExpirationOfApiKey", TokenResult?.data?.expire)
                 return [true, TokenResult?.data?.accessToken]
@@ -68,7 +67,6 @@ const RechargePage = () => {
 
     const CheckOutMNO = async (tokenAuth) => {
         // Generate first token
-
         let checkouData = {
             accountNumber: phone,
             amount: amount,
@@ -93,54 +91,58 @@ const RechargePage = () => {
         }
     }
 
-    const SaveSuccesfulTransction = async (transactionId, phone, meterID) => {
-        let result = await fetch(`${Configuration.backendUrl}/user/verify/email`, {
+    const SaveSuccesfulTransction = async (transactionId) => {
+        let dataToS = {
+            phone: phone,
+            provider: provider,
+            kit: meterID,
+            transactionId: transactionId,
+            amount: Number(amount)
+        }
+        let result = await fetch(`${Configuration.backendUrl}/payment/save`, {
             method: "POST",
             mode: "cors",
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                phone: phone,
-                provider,
-                kit: meterID,
-                transactionId: transactionId,
-            })
+            body: JSON.stringify(dataToS)
         })
         const response = await result.json();
-        if (response?.Success) { 
-            
+        console.log(response);
+        if (response?.Success) {
+            return [true, ""];
         } else {
-
+            return [false, response?.Error];
         }
     }
 
     let providerNames = ["Mpesa", "Airtel", "Tigo", "Halopesa", "Azampesa"]
 
     const rechargeFunc = async () => {
-        if (meterID.trim() != "" && amount.trim() != "") {
+        if (meterID.trim() != "" && amount.trim() != "" && provider != "" && phone.trim() != "" && VerifyPhoneNumber(phone) && VerifyPhoneNumberLength(phone)) {
             setBackDropON()
             try {
                 // try to obtain token from the localstorage if not generate and save it into local storage
 
-                let TransactionData = {
-
-                }
-                let SaveToBackend = await fetch(`${Configuration.backendUrl}/user/register`, {
-                    method: "POST",
-                    mode: "cors",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(TransactionData)
-                })
-                setBackDropOFF()
-                if (response?.Success) {
+                let [succF, token] = await TokenGeneration()
+                if (succF) {
+                    let [succF2, TranID] = await CheckOutMNO(token)
+                    if (succF2) {
+                        let [succF3, erroM] = await SaveSuccesfulTransction(TranID)
+                        if (succF3) {
+                            setNotificationOn("success", "saved transaction")
+                        } else {
+                            setNotificationOn("error", erroM)
+                        }
+                    } else {
+                        setNotificationOn("error", "Failed to save")
+                        setBackDropOFF()
+                    }
                 } else {
-                    setNotificationOn("error", response?.Error)
+                    setNotificationOn("error", "Failed to save")
+                    setBackDropOFF()
                 }
-
-
+                setBackDropOFF()
 
             } catch (error) {
                 setBackDropOFF()
@@ -148,7 +150,10 @@ const RechargePage = () => {
 
             }
         } else {
-
+            if (!VerifyPhoneNumber(phone) || !VerifyPhoneNumberLength(phone)) {
+                setNotificationOn("error", "Phone no Incorrect.")
+                return
+            }
             setNotificationOn("error", "Please fill all of the field..")
         }
     }
@@ -159,7 +164,7 @@ const RechargePage = () => {
             <Typography sx={{ fontSize: { xs: "1.1rem", md: "1.2rem", color: "#1d3557", fontWeight: "450" } }}>
                 You have our system ?
             </Typography>
-            <Typography color={'primary'} sx={{ fontSize: { xs: "1.7rem", md: "2rem", fontWeight: "450" } }}>
+            <Typography  sx={{ fontSize: { xs: "1.7rem", color:"#fb8500", md: "2rem", fontWeight: "450" } }}>
                 Recharge here
             </Typography>
 
@@ -177,8 +182,6 @@ const RechargePage = () => {
                     <Grid md={7} xs={12} item>
                         <CustomDropDown placeholder='Provider' setValue={setProvider} valseen={providerNames} vals={providerNames} helperText='e.g Mpesa' />
                     </Grid>
-
-
                     <Grid alignSelf={"center"} display={"flex"} md={7} xs={12} item>
                         <Button onClick={() => rechargeFunc()} sx={{
                             padding: "0.4rem 5rem", width: "100%", '&:hover': {
@@ -191,8 +194,6 @@ const RechargePage = () => {
                         <Typography variant="subtitle" onClick={() => navigateTo("/")}>
                             <span style={{ color: "#1d3557", cursor: "pointer", fontWeight: "400" }}>Login here</span>
                         </Typography>
-
-
                     </Grid>
 
                 </Grid>
@@ -201,7 +202,4 @@ const RechargePage = () => {
     </>);
 }
 
-export default RechargePage;
-
-
-
+export default RechargePage;  

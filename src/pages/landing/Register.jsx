@@ -73,7 +73,7 @@ const Register = () => {
   }
   return (<>
     <Box pt={{ xs: 2, md: 6 }} textAlign={"center"}>
-      <Typography color="primary" sx={{ fontSize: { xs: "1.7rem", md: "2.3rem", fontWeight: "450" } }}>
+      <Typography  sx={{ fontSize: { xs: "1.7rem", md: "2.3rem", fontWeight: "450" },  color:"#fb8500" }}>
         Sign-up
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "column", margin: "0 auto", justifyContent: "center", alignItems: "center" }}>
