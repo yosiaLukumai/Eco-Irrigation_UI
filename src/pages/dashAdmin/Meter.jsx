@@ -10,6 +10,7 @@ import AddNewMeter from "../../components/addNewMeter";
 import BackdropProcess from "../../components/Backdrop";
 import { ThemeProvider } from "@emotion/react";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import AddNewPackage from "../../components/AddNewPackage";
 
 
 
@@ -76,6 +77,7 @@ const Meter = () => {
     const [rowsPerPage, setRowPerPage] = useState(7)
     const [count, setCount] = useState(null)
     const [open, setOpen] = useState(false)
+    const [openPackage, setOpenPackage] = useState(false)
     const [openRole, setOpenRole] = useState(false)
     const [meters, setMeters] = useState(null)
     const [thereData, setThereData] = useState(false)
@@ -138,7 +140,12 @@ const Meter = () => {
             setOpen(true)
             return
         }
+        if(id == 2) {
+            setOpenPackage(true);
+            return
+        }
     }
+
     useEffect(() => {
         async function fetchMeters() {
             try {
@@ -182,6 +189,9 @@ const Meter = () => {
         setOpen(false)
         setOpenRole(false)
         setReload(!reload)
+    }
+    const nowCloseT = () => {
+        setOpenPackage(false)
     }
     const columns = [
 
@@ -300,6 +310,7 @@ const Meter = () => {
 
         {loading && <BackdropProcess opens={loading} />}
         {open && <AddNewMeter openFlag={open} notifyParent={nowClose} />}
+        {openPackage && <AddNewPackage openFlag={openPackage} notifyParent={nowCloseT} />}
         <Box sx={{ pt: { xs: "2.3rem", md: "2.5rem" }, px: { md: "3rem", xs: "0.2rem" }, height: { md: "92.5vh", xs: "" } }}>
             <Grid container sx={{ background: "", py: "0rem", pb: "1.2rem", borderRadius: "1.4rem" }}>
                 <Grid sx={{ display: "flex", justifyContent: "flex-end", px: { xs: "0.4rem", md: "0rem" }, pt: "0rem" }} md={12} xs={12} item>
@@ -307,8 +318,12 @@ const Meter = () => {
                         <Add sx={{ pr: "0.3rem" }} />
                         Add Kit
                     </Button>
-
+                    <Button onClick={() => openNewMeterDialog(2)} variant="contained" sx={{ textTransform: "none", ml:"0.8rem", padding: "0.5rem 1.2rem", fontWeight: "bold", borderRadius: "1.2rem" }} className="hoveredButton">
+                        <Add sx={{ pr: "0.3rem" }} />
+                        Add Package
+                    </Button>
                 </Grid>
+                
             </Grid>
             {(!loading && !thereData && meters) && <Grid justifyContent={"center"} alignContent={"center"} container spacing={2}>
                 <Grid className="" md={12} xs={12} sx={{ overflow: "" }} item>

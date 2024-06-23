@@ -29,11 +29,11 @@ const Register = () => {
       // signupdata 
       setBackDropON()
       let signUpData = {
-          firstname: firstName,
-          lastname: lastName,
-          email: email,
-          phone: phone,
-          password: password
+        firstname: firstName,
+        lastname: lastName,
+        email: email,
+        phone: phone,
+        password: password
       }
 
       try {
@@ -76,12 +76,8 @@ const Register = () => {
       <Typography color="primary" sx={{ fontSize: { xs: "1.7rem", md: "2.3rem", fontWeight: "450" } }}>
         Sign-up
       </Typography>
-
-
-
       <Box sx={{ display: "flex", flexDirection: "column", margin: "0 auto", justifyContent: "center", alignItems: "center" }}>
         <Grid container columnSpacing={{ xs: 0, md: 4 }} rowSpacing={3} sx={{ width: { xs: "90%", sm: "80%", md: "53%" }, pt: { xs: "0.9rem", md: "1.3rem" } }}>
-
 
           <Grid md={6} xs={12} item>
             <IconTextField fullWidth validationRules={['req']} updateValue={setFirstName} label="First Name" iconEnd={<Name />} ></IconTextField>

@@ -73,6 +73,8 @@ const Client = () => {
     const [rowsPerPage, setRowPerPage] = useState(7)
     const [count, setCount] = useState(null)
     const [unassignedKits, setUnassignedKits] = useState(null)
+    const [packages, setPackages] = useState(null)
+    const [packageIDs, setPackagesIDs] = useState(null)
     const [companyBranches, setCompanyBranches] = useState(null)
     const [companyBranchesIDs, setCompanyBranchesIDs] = useState(null)
     const [open, setOpen] = useState(false)
@@ -80,6 +82,7 @@ const Client = () => {
     const [thereData, setThereData] = useState(false)
     const [pageNumber, setPageNumber] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
+    const [reload, setReload] = useState(false)
 
     const [anchorEl, setAnchorEl] = useState(null);
     const openss = Boolean(anchorEl);
@@ -166,17 +169,17 @@ const Client = () => {
                 console.log(error);
             }
         }
-        if (!isMounted2.current) {
-            isMounted2.current = true
-            fetchMeters()
-            setIsLoading(false)
-        }
 
-    }, [])
+        isMounted2.current = true
+        fetchMeters()
+        setIsLoading(false)
+
+    }, [reload])
 
 
     const nowClose = () => {
         setOpen(false)
+        setReload(!reload)
     }
 
     useEffect(() => {
@@ -188,7 +191,7 @@ const Client = () => {
                 })
                 const result = await response.json()
                 if (result?.Success) {
-                    console.log(result?.Data);
+                    // console.log(result?.Data);
                     let filT = result?.Data?.data?.map(e => e?._id)
                     setUnassignedKits(filT)
                 } else {
@@ -199,10 +202,33 @@ const Client = () => {
                 console.log(error);
             }
         }
-        if (!isMounted.current) {
-            isMounted.current = true;
-            fetchData()
+        fetchData()
+
+    }, [reload])
+    useEffect(() => {
+        async function fetPacks() {
+            try {
+                const response = await fetch(`${Configuration.backendUrl}/company/find/packages/names`, {
+                    mode: "cors",
+                    method: "GET"
+                })
+                const result = await response.json()
+                if (result?.Success) {
+                    // console.log(result?.Data);
+                    let filD = result?.Data?.data?.map(e => e?._id)
+                    let namesP = result?.Data?.data?.map(e => e?.name)
+                    setPackagesIDs(filD)
+                    setPackages(namesP)
+
+                } else {
+                    setThereData(true)
+                    setLoading(false)
+                }
+            } catch (error) {
+                console.log(error);
+            }
         }
+        fetPacks()
 
     }, [])
     const columns = [
@@ -245,8 +271,16 @@ const Client = () => {
             }
         },
         {
-            name: "balance",
-            label: "Amount",
+            name: "package",
+            label: "Package",
+            options: {
+                filter: false,
+                sort: false,
+            }
+        },
+        {
+            name: "pumpID",
+            label: "Pump",
             options: {
                 filter: false,
                 sort: false,
@@ -302,14 +336,14 @@ const Client = () => {
     return (<>
 
         {loading && <BackdropProcess opens={loading} />}
-        {open && <AddNewClient openFlag={open} notifyParent={nowClose} pumpIDs={unassignedKits} valID={companyBranchesIDs} valu={companyBranches} />}
+        {open && <AddNewClient openFlag={open} notifyParent={nowClose} pumpIDs={unassignedKits} packagesID={packageIDs} packagesNames={packages} />}
 
         <Box sx={{ pt: { xs: "2.3rem", md: "2.5rem" }, px: { md: "3rem", xs: "0.2rem" }, height: { md: "92.5vh", xs: "" } }}>
             <Grid container sx={{ background: "", py: "0rem", pb: "1.2rem", borderRadius: "1.4rem" }}>
                 <Grid sx={{ display: "flex", justifyContent: "flex-end", px: { xs: "0.1rem", md: "0rem" }, pt: "0rem" }} md={12} xs={12} item>
                     <Button onClick={() => openNewMeterDialog(1)} variant="contained" sx={{ textTransform: "none", padding: "0.5rem 1.2rem", fontWeight: "bold", borderRadius: "1.2rem" }} className="hoveredButton">
                         <Add sx={{ pr: "0.3rem" }} />
-                        Add Client
+                        Add Farmer
                     </Button>
 
                 </Grid>
@@ -320,7 +354,7 @@ const Client = () => {
                         {
                             <Box sx={{ marginBottom: "0.2rem" }}>
                                 <Typography variant="" sx={{ fontSize: "18px", color: "#606469", fontWeight: "500" }}>
-                                    All Clients
+                                    All Farmers
                                     {isLoading && <CircularProgress size={24} style={{ marginLeft: 15, position: 'relative', top: 4 }} />}
                                 </Typography>
                             </Box>
@@ -339,7 +373,7 @@ const Client = () => {
 
             {
                 (!clients && !loading) && <Typography variant="h6" textAlign={"center"}>
-                    There is no clients
+                    There is no farmers
                 </Typography>
             }
 
