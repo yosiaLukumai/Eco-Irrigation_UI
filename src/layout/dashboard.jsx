@@ -207,7 +207,7 @@ const DashBoardAdmin = () => {
                             <Box className="" display={"flex"} sx={{ justifyContent: "center" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                                     <Typography variant='h6' sx={{ fontWeight: "600" }}>
-                                        <span style={{ color: "#386641" }}>Eco-Irrigation</span>
+                                        <span style={{ color: "#386641" }}>Eco<span style={{color:"#fb8500"}}>-Irrigation</span></span>
                                     </Typography>
                                     {/* <IconButton onClick={handleDrawerClose}>
                                         <ChevronLeftIcon sx={{ color: "#1d3557" }} fontSize='large' fontWeight="bolder" />
@@ -244,12 +244,12 @@ const DashBoardAdmin = () => {
                                         justifyContent: 'center',
                                     }}
                                 >
-                                    {text == "Dashboard" ? <Dashboard sx={{ color: activeTab == "Dashboard" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
-                                    {text == "Usage" ? <Usage sx={{ color: activeTab == "Usage" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
-                                    {text == "Systems" ? <SolarPowerIcon sx={{ color: activeTab == "Systems" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
-                                    {text == "Farmers" ? <AgricultureIcon sx={{ color: activeTab == "Farmers" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
-                                    {text == "Payment" ? <PaymentIcon sx={{ color: activeTab == "Payment" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
-                                    {text == "Users" ? <ManageUsers sx={{ color: activeTab == "Users" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
+                                    {text == "Dashboard" ? <Dashboard sx={{ color: activeTab == "Dashboard" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
+                                    {text == "Usage" ? <Usage sx={{ color: activeTab == "Usage" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
+                                    {text == "Systems" ? <SolarPowerIcon sx={{ color: activeTab == "Systems" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
+                                    {text == "Farmers" ? <AgricultureIcon sx={{ color: activeTab == "Farmers" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
+                                    {text == "Payment" ? <PaymentIcon sx={{ color: activeTab == "Payment" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
+                                    {text == "Users" ? <ManageUsers sx={{ color: activeTab == "Users" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
                                 </ListItemIcon>
                                 <ListItemText sx={{ opacity: open ? 1 : 0, }} >
                                     <Typography sx={{ fontWeight: "400", fontSize: "1.3rem" }}>
@@ -287,8 +287,8 @@ const DashBoardAdmin = () => {
                                                 justifyContent: 'center',
                                             }}
                                         >
-                                            {text == "Profile" ? <Profile sx={{ color: activeTab == "Profile" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
-                                            {text == "Logout" ? <LogoutIcon sx={{ color: activeTab == "Logout" ? "#386641" : "#1d3557" }} fontSize='large' /> : null}
+                                            {text == "Profile" ? <Profile sx={{ color: activeTab == "Profile" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
+                                            {text == "Logout" ? <LogoutIcon sx={{ color: activeTab == "Logout" ? "#fb8500" : "#1d3557" }} fontSize='large' /> : null}
                                         </ListItemIcon>
                                         <ListItemText sx={{ opacity: open ? 1 : 0, }} >
                                             <Typography sx={{ fontWeight: "400", fontSize: "1.3rem" }}>

@@ -74,7 +74,7 @@ const AppBarComponent = () => {
             <Toolbar className="" variant="dense" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <Box display={"flex"} alignContent={"center"} alignItems={"center"}>
                     <Typography variant="h5" className="" color="primary" sx={{ fontWeight: "bolder", fontSize: "1.8rem" }} component="div">
-                        Eco-Irrigation
+                        Eco<span style={{color:"#fb8500"}}>-Irrigation</span>
                     </Typography>
 
                     <Box sx={{ display: { xs: 'none', md: 'block' }, ml: { md: 12, xl: 14 }, backgroundColor: "" }}>
