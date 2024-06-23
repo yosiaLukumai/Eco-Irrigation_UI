@@ -15,7 +15,7 @@ function Copyright() {
     return (
         <Typography variant="body2" sx={{ fontSize: "1.1rem" }} color="text.secondary" mt={1}>
             {'Copyright © '}
-            <Link href="#">afm_technologies&nbsp;</Link>
+            <Link href="#">eco_irrigation&nbsp;</Link>
             {new Date().getFullYear()}
         </Typography>
     );

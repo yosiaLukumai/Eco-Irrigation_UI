@@ -24,34 +24,30 @@ import MainAppStore from '../stores/app';
 const Transition = forwardRef(function Transition(props, ref) {
     return <Slide timeout={20} direction="left" ref={ref} {...props} />;
 });
-const AddNewClient = ({ openFlag = true, notifyParent, valu, valID, pumpIDs }) => {
+const AddNewClient = ({ openFlag = true, notifyParent, pumpIDs, packagesID, packagesNames }) => {
     const [open, setOpen] = useState(openFlag);
-    const [showFlag, setShowFlag] = useState(false)
-    const [meterSerial, setmeterSerial] = useState(null)
     const [message, setMessage] = useState("")
-    const [typeMessage, SetTypeMessage] = useState("")
     const [email, setemail] = useState("")
     const [firstName, setfirstName] = useState("")
-    const [meter, setmeter] = useState("")
     const [lastName, setlastName] = useState("")
     const [phone, setPhone] = useState('')
-    const [NIN, setNIN] = useState("")
     const [brach, setBranch] = useState("")
+    const [pkg, setPkg] = useState("")
     const [thereisAvailableMeter, setthereisAvailableMeter] = useState(false)
     const [fetchingMeter, setFetchingMeter] = useState(false)
     const [onSending, setonSending] = useState(false)
     const setBackDropOFF = MainAppStore((state) => state.setBackDropFlagOff)
+    const setNotificationOn = MainAppStore((state) => state.setNotificationOn)
     const setBackDropON = MainAppStore((state) => state.setBackDropFlagOn)
 
     const handleClose = () => {
         setOpen(false);
         notifyParent()
     };
-    const NotifyParent = () => {
-        setShowFlag(false)
-    }
+
     const addClient = async () => {
-        if (firstName.trim() != "" && lastName.trim() != ""  && email.trim() != "" && phone.trim() != "" && !(phone.trim().length != 10 || !VerifyPhoneNumber(phone.trim())) && !(!VerifyPhoneNumber(NIN.trim())) && !(!verifyEmail(email.trim()))) {
+        console.log("it's me.....");
+        if (firstName.trim() != "" && lastName.trim() != "" && email.trim() != "" && phone.trim() != "" && !(phone.trim().length != 10 || !VerifyPhoneNumber(phone.trim())) && !(!verifyEmail(email.trim()))) {
             // setonSending(true)
             setBackDropON()
             try {
@@ -60,9 +56,9 @@ const AddNewClient = ({ openFlag = true, notifyParent, valu, valID, pumpIDs }) =
                     firstname: firstName.trim(),
                     lastname: lastName.trim(),
                     phone: phone.trim(),
-                    kit : brach
+                    pumpid: brach,
+                    package: pkg
                 }
-                console.log(dataToSend);
                 const sent = await fetch(`${Configuration.backendUrl}/client/register`, {
                     method: "POST",
                     mode: "cors",
@@ -76,38 +72,35 @@ const AddNewClient = ({ openFlag = true, notifyParent, valu, valID, pumpIDs }) =
                 if (response?.Success) {
                     // setonSending(false)
                     setBackDropOFF()
-                    SetTypeMessage("success")
-                    setMessage(" saved the Customer.")
-                    setShowFlag(true)
+                    setNotificationOn("success", " saved the farner.")
+                    handleClose()
                 } else {
                     // setonSending(false)
                     setBackDropOFF()
+                    setNotificationOn("error", response?.Error)
                     console.log("backend error:  ", response);
-                    SetTypeMessage("error")
-                    setMessage(response?.Error)
-                    setShowFlag(true)
                 }
 
 
             } catch (error) {
                 // setonSending(false)
                 setBackDropOFF()
-                SetTypeMessage("error")
-                setMessage(" something went wrong.")
+                setNotificationOn("error", " something went wrong.")
                 setShowFlag(true)
             }
 
 
         } else {
-            SetTypeMessage("error")
             if (phone.trim().length != 10 || !VerifyPhoneNumber(phone.trim())) {
-                setMessage(" Ensure the phone number is correct..")
+                setNotificationOn("error", " Incorrect Phone")
+                return
             } else if (!verifyEmail(email.trim())) {
-                setMessage(" Incorrect Email")
+                setNotificationOn("error", " Incorrect Email")
+                return
             } else {
-                setMessage("Fill all the required field")
+                setNotificationOn("error", "Fill all the required field")
             }
-            setShowFlag(true)
+
         }
     }
 
@@ -176,11 +169,10 @@ const AddNewClient = ({ openFlag = true, notifyParent, valu, valID, pumpIDs }) =
                 sx={{ borderRadius: "17px", padding: { xs: 0, md: "2.3rem" } }}
             >
                 {/* <BackdropProcess opens={onSending}/> */}
-                <AlertDialog time={1500} msg={message} type={typeMessage} show={showFlag} NotifyParent={NotifyParent} />
                 <Box className='' sx={{ padding: { xs: "0.2rem", md: "2.4rem 1.4rem" }, }}>
                     <DialogTitle sx={{ fontSize: "1.9rem", fontWeight: "420" }}>
                         <span style={{ color: '#1d3558' }}>Add</span>
-                        <span style={{ color: '#fb8500', paddingLeft: "0.3rem" }}>New Client</span>
+                        <span style={{ color: '#fb8500', paddingLeft: "0.3rem" }}>New Farmer</span>
                     </DialogTitle>
                     <IconButton
                         aria-label="close"
@@ -210,9 +202,12 @@ const AddNewClient = ({ openFlag = true, notifyParent, valu, valID, pumpIDs }) =
                                 <Grid md={6} xs={12} item>
                                     <IconTextField fullWidth label="Email" validationRules={['req', "email"]} updateValue={setemail} iconEnd={<MailOutlineIcon />} helperText='e.g user@gmail.com' />
                                 </Grid>
-                             
+
                                 <Grid md={6} xs={12} item>
                                     <IconTextField fullWidth label="Phone" validationRules={['req', "phone"]} updateValue={setPhone} iconEnd={<PhoneIcon />} helperText='e.g 0762127425' />
+                                </Grid>
+                                <Grid md={6} xs={12} item>
+                                    <CustomDropDown placeholder='Package' setValue={setPkg} valseen={packagesNames} vals={packagesID} helperText='Select Package' />
                                 </Grid>
                                 <Grid md={12} xs={12} sx={{ mt: "1.4rem", m: "0 auto" }} item>
                                     <Button disabled={onSending} variant='contained' className='hoveredButton border' sx={{ width: "100%", textTransform: "none", padding: "0.3rem 0.7rem", fontSize: "1.1rem", fontWeight: "bold" }} onClick={() => addClient()}>
