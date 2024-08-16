@@ -98,7 +98,7 @@ const router = createBrowserRouter([
     ]
 
   }
-])
+], {basename:"ecoirrigation"})
 
 
 const lighTheme = createTheme({
